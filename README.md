@@ -1,6 +1,6 @@
 # img2sto
 
-Image To Storage proxy with resizing on-the-fly.
+Image To Storage proxy for uploading/downloading images to/from Minio storage with resizing on-the-fly.
 
 ---
 
