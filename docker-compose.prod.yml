@@ -1,0 +1,19 @@
+# Prod config overrides base one
+
+version: "3"
+services:
+
+  img2sto:
+    networks:
+      - img2sto
+
+  minio:
+    networks:
+      - img2sto
+
+  imaginary:
+    networks:
+      - img2sto
+
+networks:
+  img2sto:

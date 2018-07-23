@@ -1,0 +1,170 @@
+{
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Image To Storage proxy for uploading/downloading images\nto/from Minio storage with resizing on-the-fly.",
+    "title": "img2sto",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "summary: Health check\ndescription: Returns health info.",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "healthStats",
+            "schema": {
+              "$ref": "#/definitions/healthStats"
+            }
+          }
+        }
+      }
+    },
+    "/v1/{bucket}/upload": {
+      "post": {
+        "description": "Upload image to storage. You need to specify bucket in URL.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Upload",
+        "operationId": "upload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name in storage for uploading.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "Don't enlarge if original image width/height is smaller than in required resize option.",
+            "name": "enlarge",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Resize string. It must follow one of two patterns, '100x100' as width x height or '100' as width.",
+            "name": "resize",
+            "in": "query"
+          },
+          {
+            "type": "file",
+            "description": "Image file for uploading.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Returns new file name for successfully uploaded image.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "description": "Generated file name of uploaded image.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (RESIZE_PARAMS_ARE_INVALID, FILE_TOO_BIG, INVALID_FILE_CONTENT, INVALID_FILE_TYPE)."
+          },
+          "500": {
+            "description": "Internal error (CANT_GENERATE_FILENAME, CANT_RESIZE_FILE, CANT_POST_TO_STORAGE, CANT_MARSHAL_DATA)."
+          }
+        }
+      }
+    },
+    "/v1/{bucket}/{object}": {
+      "get": {
+        "description": "Download image from storage. You need to specify bucket \u0026 image object in URL.",
+        "produces": [
+          "image/jpeg",
+          "image/gif",
+          "image/png"
+        ],
+        "summary": "Download",
+        "operationId": "download",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Bucket name in storage.",
+            "name": "bucket",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Object name in storage.",
+            "name": "object",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Returns file from storage."
+          },
+          "400": {
+            "description": "Bad request (RESIZE_PARAMS_ARE_INVALID, INVALID_FILE_TYPE)."
+          },
+          "404": {
+            "description": "Not found (CANT_PROCESS_FILE_ON_STORAGE)."
+          },
+          "500": {
+            "description": "Internal error (CANT_READ_FILE, CANT_RESIZE_FILE, CANT_RESPOND_FILE)."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "healthStats": {
+      "description": "HealthStats represents current app runtime stats",
+      "type": "object",
+      "properties": {
+        "allocatedMemory": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "AllocatedMemory"
+        },
+        "cpus": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CPUs"
+        },
+        "goroutines": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Goroutines"
+        },
+        "totalAllocatedMemory": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "TotalAllocatedMemory"
+        },
+        "uptime": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Uptime"
+        }
+      },
+      "x-go-name": "HealthStats",
+      "x-go-package": "github.com/teryaew/itos"
+    }
+  }
+}

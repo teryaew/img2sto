@@ -1,0 +1,16 @@
+# Dev config overrides base one
+
+version: "3"
+services:
+
+  minio:
+    ports:
+      - "8111:9000"
+    environment:
+      # Mock keys for dev env
+      - MINIO_ACCESS_KEY=5F9HBcm8TZpJmb8r
+      - MINIO_SECRET_KEY=XF8wEgaMmsH2B5ne
+
+  imaginary:
+    ports:
+      - "8112:9000"

@@ -1,0 +1,18 @@
+version: "3"
+services:
+
+  # img2sto:
+  #   image: teryaew/img2sto:1.0.0
+  #   depends_on:
+  #     - minio
+  #     - imaginary
+
+  minio:
+    image: minio/minio
+    command: server /export
+    volumes:
+      - ./minio:/export
+
+  imaginary:
+    image: h2non/imaginary
+    command: -cors -concurrency 20

@@ -1,0 +1,49 @@
+# img2sto
+
+Image To Storage proxy with resizing on-the-fly.
+
+---
+
+## Commands
+
+For running, testing, deploying see [Makefile](./Makefile).
+
+
+## API Docs
+
+`make doc`
+
+
+## Testing
+
+Currently you need to manually run `make docker-run-dev` before tests,
+for launching minio & imaginary containers.
+
+
+## HTTP Communication
+
+A = your app
+P = img2sto
+R = resizer
+S = storage
+
+Upload: multipart/form-data file (A) -> P -> R -> P -> S -> P -> image url
+
+Download: browser url (A) -> P -> S -> P -> R -> P -> (A)
+
+
+## Requirements
+
+Resizer: [Imaginary](https://github.com/h2non/imaginary)
+
+Storage: [Minio](https://github.com/minio/minio) required!
+
+
+## Resizing on-the-fly
+
+Set width and (optionally) height in query params to resize image on-the-fly:
+
+{protocol}://{host}/{id}?resize={W|WxH}
+
+http://localhost:8080/{bucketName}/ec0c5dbc-e4dc-44d6-b12a-55380e8eebbf.png?resize=600
+http://localhost:8080/{bucketName}/ec0c5dbc-e4dc-44d6-b12a-55380e8eebbf.png?resize=600x200
