@@ -9,13 +9,15 @@ import (
 	"log"
 	"mime"
 	"net/http"
+	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/minio/minio-go"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 const MaxUploadSize = 10 * 1024 * 1024 // 10mb
@@ -52,7 +54,7 @@ func HealthController(w http.ResponseWriter, r *http.Request) {
 
 // UploadController handles image uploading
 func (u *UploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// swagger:operation POST /v1/{bucket}/upload upload
+	// swagger:operation POST /{bucket}/upload upload
 	// ---
 	// summary: Upload
 	// description: Upload image to storage. You need to specify bucket in URL.
@@ -189,7 +191,7 @@ func (u *UploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // DownloadController handles image downloading
 func (d *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// swagger:operation GET /v1/{bucket}/{object} download
+	// swagger:operation GET /{bucket}/{object} download
 	// ---
 	// summary: Download
 	// description: Download image from storage. You need to specify bucket & image object in URL.
@@ -242,9 +244,23 @@ func (d *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get bucket & object names from request url
-	vars := mux.Vars(r)
-	bucketName := vars["bucket"]
-	objName := vars["object"]
+	var bucketName string
+	var objName string
+	separator := string(os.PathSeparator)
+	pathParts := strings.Split(r.RequestURI, separator)
+	if len(pathParts) >= 2 {
+		bucketName = pathParts[1]
+		for _, pathPart := range pathParts[2:] {
+			// GOTCHA: Minio requires unescaped symbols
+			result, err := url.PathUnescape(pathPart)
+			if err != nil {
+				renderError(w, err, "CANT_UNESCAPE_URL_PART", http.StatusBadRequest)
+			}
+			// GOTCHA: Minio converts slashes ("/") in directory name (objName) to ":", so we need to convert it
+			result = strings.ReplaceAll(result, "/", ":")
+			objName += separator + result
+		}
+	}
 
 	// Get object from storage
 	obj, err := ctx.Storage.GetObject(bucketName, objName, minio.GetObjectOptions{})

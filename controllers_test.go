@@ -94,7 +94,7 @@ func TestUploadHandler(t *testing.T) {
 	prepareTestBucket(appCtx.Storage)
 
 	for _, c := range cases {
-		req, err := postFile(c.file, fmt.Sprintf("/%s/%s/upload", ApiVersion, bucketName))
+		req, err := postFile(c.file, fmt.Sprintf("/%s", bucketName))
 		if err != nil {
 			assert.Nil(t, err)
 		}
@@ -123,7 +123,7 @@ func TestUploadHandler(t *testing.T) {
 }
 
 func TestDownloadHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("/%s/%s/%s?resize=200x200", ApiVersion, bucketName, uploadedFileName), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("/%s/%s?resize=200x200", bucketName, uploadedFileName), nil)
 	if err != nil {
 		assert.Nil(t, err)
 	}

@@ -24,7 +24,6 @@ import (
 	"github.com/minio/minio-go"
 )
 
-const ApiVersion = "v1"
 const ServerTimeout = 5 * time.Second
 
 // MIME types
@@ -59,7 +58,6 @@ type Options struct {
 }
 
 func main() {
-	log.Println("API:", ApiVersion)
 	initServer(CreateContext())
 }
 
@@ -107,17 +105,16 @@ func initServer(appCtx *AppContext) {
 // InitRouter initializes & returns new router.
 func InitRouter(appCtx *AppContext) http.Handler {
 	router := mux.NewRouter()
-	subrouter := router.PathPrefix("/" + ApiVersion).Subrouter()
 
 	// Register routes
 	router.HandleFunc("/health", HealthController).Methods("GET")
-	subrouter.Path("/{bucket}/upload").Handler(&UploadHandler{appCtx}).Methods("POST")
-	subrouter.Path("/{bucket}/{object}").Handler(&DownloadHandler{appCtx}).Methods("GET")
+	router.PathPrefix("/").Handler(&UploadHandler{appCtx}).Methods("POST")
+	router.PathPrefix("/").Handler(&DownloadHandler{appCtx}).Methods("GET")
 
 	// Apply middlewares
 	omw := &OptionsMW{appCtx}
-	subrouter.Use(omw.Middleware)
-	subrouter.Use(CorsMW)
+	router.Use(omw.Middleware)
+	router.Use(CorsMW)
 	router.Use(LoggingMW)
 
 	return router

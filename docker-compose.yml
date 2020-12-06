@@ -9,9 +9,9 @@ services:
 
   minio:
     image: minio/minio
-    command: server /export
+    command: server /mnt/data
     volumes:
-      - ./minio:/export
+      - ./minio:/mnt/data
 
   imaginary:
     image: h2non/imaginary
