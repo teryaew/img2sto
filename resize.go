@@ -58,7 +58,7 @@ func ResizeImage(ctx *AppContext, input io.Reader, mimeType string) (io.Reader, 
 
 	// Prepare URL
 	resizeURL := fmt.Sprintf(
-		"%s/thumbnail?quality=%d&width=%d",
+		"http://%s/thumbnail?quality=%d&width=%d",
 		ctx.Config.ImageServiceURL, ResizeJpegQuality, ctx.Dimensions[0],
 	)
 	if len(ctx.Dimensions) == 2 {
@@ -139,7 +139,7 @@ func checkImageForEnlarge(imageServiceURL *string, input *io.Reader, mimeType *s
 }
 
 func getImageInfo(imageServiceURL *string, input io.Reader, mimeType *string) (*ImageInfo, error) {
-	infoURL := fmt.Sprintf("%s/info", *imageServiceURL)
+	infoURL := fmt.Sprintf("http://%s/info", *imageServiceURL)
 	resp, err := http.Post(infoURL, *mimeType, input)
 	if err != nil {
 		return nil, err

@@ -262,6 +262,9 @@ func (d *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Remove from objName all params (e.g. "resize")
+	objName = strings.Split(objName, "?")[0]
+
 	// Get object from storage
 	obj, err := ctx.Storage.GetObject(bucketName, objName, minio.GetObjectOptions{})
 	if err != nil {
